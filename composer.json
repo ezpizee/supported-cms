@@ -24,6 +24,7 @@
   "autoload": {
     "psr-0": {
       "Ezpizee\\SupportedCMS\\Drupal": "src/",
+      "Ezpizee\\SupportedCMS\\Exception": "src/",
       "Ezpizee\\SupportedCMS\\Joomla": "src/",
       "Ezpizee\\SupportedCMS\\WordPress": "src/"
     }

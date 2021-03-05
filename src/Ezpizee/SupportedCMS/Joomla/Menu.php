@@ -38,8 +38,14 @@ class Menu
         return self::getActiveMenu()->getParams();
     }
 
+    public static function getItem(int $id): MenuItem
+    {
+        $menuItem = self::getMenu()->getItem($id);
+        return empty($menuItem) ? new MenuItem([]) : $menuItem;
+    }
+
     public static function getMenuItemParams(int $id): Registry
     {
-        return self::getMenu()->getItem($id)->getParams();
+        return self::getItem($id)->getParams();
     }
 }

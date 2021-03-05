@@ -2,7 +2,6 @@
 
 namespace Ezpizee\SupportedCMS\Joomla;
 
-class Factory
-{
+defined('_JEXEC') or die;
 
-}
+class Factory {}

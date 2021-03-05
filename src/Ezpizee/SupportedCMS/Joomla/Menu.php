@@ -2,12 +2,15 @@
 
 namespace Ezpizee\SupportedCMS\Joomla;
 
+defined('_JEXEC') or die;
+
 use Exception;
 use Ezpizee\SupportedCMS\Exception\Error;
 use Ezpizee\Utils\Logger;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Menu\AbstractMenu;
 use Joomla\CMS\Menu\MenuItem;
+use Joomla\CMS\Router\Route;
 use Joomla\Registry\Registry;
 
 class Menu
@@ -47,5 +50,11 @@ class Menu
     public static function getMenuItemParams(int $id): Registry
     {
         return self::getItem($id)->getParams();
+    }
+
+    public static function urlByItemId(int $id): string
+    {
+        $route = Route::_('index.php?Itemid='.$id);
+        return empty($route) ? '' : $route;
     }
 }

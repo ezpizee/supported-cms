@@ -26,7 +26,7 @@ class Properties
     public $htmlDoc;
     public $bodyClasses = '';
     public $tmpl = '';
-    public $layout = '';
+    public $theme = '';
     public $webRoot = '';
     public $tmplWebRoot = '';
     public $langUrlPath = '';
@@ -42,13 +42,19 @@ class Properties
         $this->htmlDoc = $htmlDoc;
         $this->menuParams = Menu::getActiveMenuParams();
         $this->tmpl = $this->menuParams->get('tmpl', 'index.php');
-        $this->layout = $this->menuParams->get('layout', 'main.php');
+        $this->theme = $this->menuParams->get('theme', 'main.php');
         $this->webRoot = Uri::root();
         $this->tmplWebRoot = Uri::root(true).'/templates/'.$this->htmlDoc->template;
         $this->langUrlPath = explode('-', $this->jdoc->language)[0];
         if ($app->get('sef_suffix')) {$this->urlPathExt = '.html';}
         if ($this->menuParams->get('menu_image')) {
             $this->bodyStyle = ' style="background-image: url(\''.$this->menuParams->get('menu_image').'\')"';
+        }
+        if ($this->menuParams->get('menu-meta_description')) {
+            $this->htmlDoc->setDescription($this->menuParams->get('menu-meta_description'));
+        }
+        if ($this->menuParams->get('menu-meta_keywords')) {
+            $this->htmlDoc->setMetaData('keywords', $this->menuParams->get('menu-meta_keywords'));
         }
         $this->jdoc->setGenerator('');
         $this->errors = $app->getMessageQueue();
@@ -66,7 +72,7 @@ class Properties
     private function bodyClasses(): void {
         $bodyClasses = [];
         $bodyClasses[] = str_replace('.php', '', $this->tmpl);
-        $bodyClasses[] = str_replace('.php', '', $this->layout);
+        $bodyClasses[] = str_replace('.php', '', $this->theme);
         $bodyClasses[] = $this->isAuthed ? 'is-authed' : 'is-public';
         $this->bodyClasses = implode(' ', $bodyClasses);
     }

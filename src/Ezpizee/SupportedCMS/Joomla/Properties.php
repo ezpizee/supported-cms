@@ -25,6 +25,7 @@ class Properties
      */
     public $htmlDoc;
     public $bodyClasses = '';
+    public $siteName = '';
     public $tmpl = '';
     public $theme = '';
     public $webRoot = '';
@@ -39,6 +40,7 @@ class Properties
     {
         $this->isAuthed = !(\Joomla\CMS\Factory::getUser()->guest > 0);
         $this->jdoc = $app->getDocument();
+        $this->siteName = $app->get('sitename');
         $this->htmlDoc = $htmlDoc;
         $this->menuParams = Menu::getActiveMenuParams();
         $this->tmpl = $this->menuParams->get('tmpl', 'index.php');
@@ -50,16 +52,11 @@ class Properties
         if ($this->menuParams->get('menu_image')) {
             $this->bodyStyle = ' style="background-image: url(\''.$this->menuParams->get('menu_image').'\')"';
         }
-        if ($this->menuParams->get('menu-meta_description')) {
-            $this->htmlDoc->setDescription($this->menuParams->get('menu-meta_description'));
-        }
-        if ($this->menuParams->get('menu-meta_keywords')) {
-            $this->htmlDoc->setMetaData('keywords', $this->menuParams->get('menu-meta_keywords'));
-        }
         $this->jdoc->setGenerator('');
         $this->errors = $app->getMessageQueue();
         $this->bodyClasses();
         $this->removePlatformClientLib();
+        $this->setHeadTags();
     }
 
     public function hasModule($position): bool {
@@ -67,6 +64,75 @@ class Properties
             return $this->htmlDoc->countModules('position-' . $position);
         }
         return $this->htmlDoc->countModules($position);
+    }
+
+    public function setHeadTags()
+    {
+        $applicationName = $this->htmlDoc->params->get('application-name', $this->siteName);
+        $ogImageUrl = $this->menuParams->get('og-image-url', $this->htmlDoc->params->get('og-image-url'));
+        $noIndex = $this->menuParams->get('noindex', $this->htmlDoc->params->get('noindex'));
+
+        if ($this->menuParams->get('menu-meta_description')) {
+            $this->htmlDoc->setDescription($this->menuParams->get('menu-meta_description'));
+        }
+        if ($noIndex > 0) {
+            $this->htmlDoc->setMetaData('robots', 'noindex', 'name');
+        }
+
+        // og meta tags
+        $this->htmlDoc->setMetaData('og:title', $this->htmlDoc->getTitle(), 'property');
+        $this->htmlDoc->setMetaData('og:type', 'website', 'property');
+        if ($this->menuParams->get('menu-meta_keywords')) {
+            $this->htmlDoc->setMetaData('keywords', $this->menuParams->get('menu-meta_keywords'));
+            $this->htmlDoc->setMetaData('og:keywords', $this->menuParams->get('menu-meta_keywords'), 'property');
+        }
+        $this->htmlDoc->setMetaData('og:description', $this->htmlDoc->getDescription(), 'property');
+        $this->htmlDoc->setMetaData('og:site_name', $applicationName, 'property');
+        if ($ogImageUrl) {
+            $this->htmlDoc->setMetaData('og:image:url', $this->webRoot.$ogImageUrl, 'property');
+        }
+
+        // twitter meta tags
+        $this->htmlDoc->setMetaData('twitter:card', 'summary_large_image', 'property');
+        $this->htmlDoc->setMetaData('twitter:title', $this->htmlDoc->getTitle(), 'property');
+        $this->htmlDoc->setMetaData('twitter:description', $this->htmlDoc->getDescription(), 'property');
+        if ($ogImageUrl) {
+            $this->htmlDoc->setMetaData('twitter:image', $this->webRoot.$ogImageUrl, 'property');
+        }
+
+        $appleTouchIcon = $this->htmlDoc->params->get('apple-touch-icon');
+        if ($appleTouchIcon) {
+            $this->htmlDoc->addHeadLink($appleTouchIcon, 'apple-touch-icon', 'rel', ['size' => '180x180']);
+        }
+        $favicon32 = $this->htmlDoc->params->get('favicon-32');
+        if ($favicon32) {
+            $this->htmlDoc->addHeadLink($favicon32, 'icon', 'rel', ['type' => 'image/png', 'size' => '32x32']);
+        }
+        $favicon16 = $this->htmlDoc->params->get('favicon-16');
+        if ($favicon16) {
+            $this->htmlDoc->addHeadLink($favicon16, 'icon', 'rel', ['type' => 'image/png', 'size' => '16x16']);
+        }
+        $favicon = $this->htmlDoc->params->get('favicon');
+        if ($favicon) {
+            $this->htmlDoc->addHeadLink($favicon, 'shortcut icon', 'rel', ['type' => 'image/x-icon']);
+        }
+        $maskIcon = $this->htmlDoc->params->get('mask-icon');
+        if ($maskIcon) {
+            $this->htmlDoc->addHeadLink($maskIcon, 'mask-icon', 'rel', ['color' => '#ffffff']);
+        }
+        $msApplicationTileImage = $this->htmlDoc->params->get('msapplication-TileImage');
+        if ($msApplicationTileImage) {
+            $this->htmlDoc->setMetaData('msapplication-TileImage', $msApplicationTileImage);
+        }
+        $msApplicationTileColor = $this->htmlDoc->params->get('msapplication-TileColor');
+        if ($msApplicationTileColor) {
+            $this->htmlDoc->setMetaData('msapplication-TileColor', $msApplicationTileColor);
+        }
+        $themeColor = $this->htmlDoc->params->get('theme-color');
+        if ($themeColor) {
+            $this->htmlDoc->setMetaData('theme-color', $themeColor);
+        }
+        $this->htmlDoc->setMetaData('application-name', $applicationName);
     }
 
     private function bodyClasses(): void {

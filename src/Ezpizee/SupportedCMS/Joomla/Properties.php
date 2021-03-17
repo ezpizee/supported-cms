@@ -4,6 +4,7 @@ namespace Ezpizee\SupportedCMS\Joomla;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Document\Document;
 use Joomla\CMS\Document\HtmlDocument;
@@ -38,7 +39,7 @@ class Properties
 
     public function __construct(HtmlDocument $htmlDoc, CMSApplication $app)
     {
-        $this->isAuthed = !(\Joomla\CMS\Factory::getUser()->guest > 0);
+        $this->isAuthed = !(Factory::getUser()->guest > 0);
         $this->jdoc = $app->getDocument();
         $this->siteName = $app->get('sitename');
         $this->htmlDoc = $htmlDoc;
@@ -68,9 +69,12 @@ class Properties
 
     public function setHeadTags()
     {
-        $applicationName = $this->htmlDoc->params->get('application-name', $this->siteName);
-        $ogImageUrl = $this->menuParams->get('og-image-url', $this->htmlDoc->params->get('og-image-url'));
-        $noIndex = $this->menuParams->get('noindex', $this->htmlDoc->params->get('noindex'));
+        $tmplParams = $this->htmlDoc->params;
+        if (!($tmplParams instanceof Registry)) {return;}
+
+        $applicationName = $tmplParams->get('application-name', $this->siteName);
+        $ogImageUrl = $this->menuParams->get('og-image-url', $tmplParams->get('og-image-url'));
+        $noIndex = (int)$this->menuParams->get('noindex', $tmplParams->get('noindex', '0'));
 
         if ($this->menuParams->get('menu-meta_description')) {
             $this->htmlDoc->setDescription($this->menuParams->get('menu-meta_description'));
@@ -89,8 +93,9 @@ class Properties
         $this->htmlDoc->setMetaData('og:description', $this->htmlDoc->getDescription(), 'property');
         $this->htmlDoc->setMetaData('og:site_name', $applicationName, 'property');
         if ($ogImageUrl) {
-            $this->htmlDoc->setMetaData('og:image:url', $this->webRoot.$ogImageUrl, 'property');
+            $this->htmlDoc->setMetaData('og:image', $this->webRoot.$ogImageUrl, 'property');
         }
+        $this->htmlDoc->setMetaData('og:url', Uri::current(), 'property');
 
         // twitter meta tags
         $this->htmlDoc->setMetaData('twitter:card', 'summary_large_image', 'property');
@@ -100,35 +105,35 @@ class Properties
             $this->htmlDoc->setMetaData('twitter:image', $this->webRoot.$ogImageUrl, 'property');
         }
 
-        $appleTouchIcon = $this->htmlDoc->params->get('apple-touch-icon');
+        $appleTouchIcon = $tmplParams->get('apple-touch-icon');
         if ($appleTouchIcon) {
             $this->htmlDoc->addHeadLink($appleTouchIcon, 'apple-touch-icon', 'rel', ['size' => '180x180']);
         }
-        $favicon32 = $this->htmlDoc->params->get('favicon-32');
+        $favicon32 = $tmplParams->get('favicon-32');
         if ($favicon32) {
             $this->htmlDoc->addHeadLink($favicon32, 'icon', 'rel', ['type' => 'image/png', 'size' => '32x32']);
         }
-        $favicon16 = $this->htmlDoc->params->get('favicon-16');
+        $favicon16 = $tmplParams->get('favicon-16');
         if ($favicon16) {
             $this->htmlDoc->addHeadLink($favicon16, 'icon', 'rel', ['type' => 'image/png', 'size' => '16x16']);
         }
-        $favicon = $this->htmlDoc->params->get('favicon');
+        $favicon = $tmplParams->get('favicon');
         if ($favicon) {
             $this->htmlDoc->addHeadLink($favicon, 'shortcut icon', 'rel', ['type' => 'image/x-icon']);
         }
-        $maskIcon = $this->htmlDoc->params->get('mask-icon');
+        $maskIcon = $tmplParams->get('mask-icon');
         if ($maskIcon) {
             $this->htmlDoc->addHeadLink($maskIcon, 'mask-icon', 'rel', ['color' => '#ffffff']);
         }
-        $msApplicationTileImage = $this->htmlDoc->params->get('msapplication-TileImage');
+        $msApplicationTileImage = $tmplParams->get('msapplication-TileImage');
         if ($msApplicationTileImage) {
             $this->htmlDoc->setMetaData('msapplication-TileImage', $msApplicationTileImage);
         }
-        $msApplicationTileColor = $this->htmlDoc->params->get('msapplication-TileColor');
+        $msApplicationTileColor = $tmplParams->get('msapplication-TileColor');
         if ($msApplicationTileColor) {
             $this->htmlDoc->setMetaData('msapplication-TileColor', $msApplicationTileColor);
         }
-        $themeColor = $this->htmlDoc->params->get('theme-color');
+        $themeColor = $tmplParams->get('theme-color');
         if ($themeColor) {
             $this->htmlDoc->setMetaData('theme-color', $themeColor);
         }

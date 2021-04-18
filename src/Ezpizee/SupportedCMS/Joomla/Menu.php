@@ -33,7 +33,8 @@ class Menu
 
     public static function getActiveMenu(): MenuItem
     {
-        return self::getMenu()->getActive();
+        $active = self::getMenu()->getActive();
+        return empty($active) ? new MenuItem() : $active;
     }
 
     public static function getActiveMenuParams(): Registry

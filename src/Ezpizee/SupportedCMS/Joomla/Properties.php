@@ -44,8 +44,8 @@ class Properties
         $this->siteName = $app->get('sitename');
         $this->htmlDoc = $htmlDoc;
         $this->menuParams = Menu::getActiveMenuParams();
-        $this->tmpl = $this->menuParams->get('tmpl', 'index.php');
-        $this->theme = $this->menuParams->get('theme', 'main.php');
+        $this->tmpl = $this->menuParams->get('tmpl', $app->input->getString('tmpl', 'index.php'));
+        $this->theme = $this->menuParams->get('theme', $app->input->getString('theme', 'main.php'));
         $this->webRoot = Uri::root();
         $this->tmplWebRoot = Uri::root(true).'/templates/'.$this->htmlDoc->template;
         $this->langUrlPath = explode('-', $this->jdoc->language)[0];

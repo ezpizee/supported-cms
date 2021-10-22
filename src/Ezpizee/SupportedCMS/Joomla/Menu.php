@@ -17,7 +17,7 @@ class Menu
 {
     public static function getMenu($name = null, $options = array()): AbstractMenu
     {
-        $menu = new AbstractMenu();
+        $menu = null;
         try {
             $menu = Factory::getApplication()->getMenu($name, $options);
             if (!($menu instanceof AbstractMenu)) {

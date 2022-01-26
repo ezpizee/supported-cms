@@ -58,4 +58,9 @@ class Menu
         $route = Route::_('index.php?Itemid='.$id);
         return empty($route) ? '' : $route;
     }
+
+    public static function getMenuById(int $id): MenuItem
+    {
+        return self::getItem($id);
+    }
 }
